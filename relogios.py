@@ -1,4 +1,7 @@
+# Sem o Middleware
+
 import json
+#Lógica de sincronização
 
 class RelogioLamport:
     def __init__(self):
@@ -15,6 +18,7 @@ class RelogioLamport:
     def pegar_valor(self):
         return self.valor
 
+# Rastreamenoto de causalidade e concorrência
 class RelogioVetorial:
     def __init__(self, meu_id):
         self.meu_id = meu_id

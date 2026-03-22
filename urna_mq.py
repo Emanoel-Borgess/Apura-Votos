@@ -1,11 +1,15 @@
+# Com o Middleware
+
 import pika
 import json
 import time
 import random
 import os
 from relogios import RelogioLamport, RelogioVetorial
+#Produtor
 
-AMQP_URL = 'amqps://byvqrtaq:vzbx1gqhQgU8s-OTsKi1ScdaBK7um0UK@gerbil.rmq.cloudamqp.com/byvqrtaq'
+#Destaque desacoplamento
+AMQP_URL = ''
 
 class Cor:
     RESET = '\033[0m'
@@ -13,7 +17,6 @@ class Cor:
     AMARELO = '\033[93m'
     MAGENTA = '\033[95m'
     NEGRITO = '\033[1m'
-
 
 ARQUIVO_CONFIG = 'contador_urnas.txt'
 id_urna = 1
@@ -34,14 +37,13 @@ def iniciar_urna():
         connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
         
-        
+        # Destaque tolerância a falha
         channel.queue_declare(queue='fila_votos', durable=True)
         print(f"{Cor.CIANO}Urna {id_urna} conectada ao RabbitMQ com sucesso!{Cor.RESET}\n")
 
         while True:
             time.sleep(random.uniform(2, 5))
             candidato = random.choice(["Candidato_A", "Candidato_B", "Candidato_C"])
-            
             
             l_time = lamport.incrementar()
             v_time = vetor.incrementar()
@@ -57,6 +59,7 @@ def iniciar_urna():
             
             print(f"{Cor.NEGRITO}[AÇÃO] Eleitor a votar em {candidato}...{Cor.RESET}")
             
+            # Destaque persistência
             channel.basic_publish(
                 exchange='',
                 routing_key='fila_votos',

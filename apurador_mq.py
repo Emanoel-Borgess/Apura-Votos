@@ -1,9 +1,12 @@
+# Com o Middleware
+
 import pika
 import json
 import time
 from relogios import RelogioLamport, RelogioVetorial
+# Consumidor
 
-AMQP_URL = 'amqps://byvqrtaq:vzbx1gqhQgU8s-OTsKi1ScdaBK7um0UK@gerbil.rmq.cloudamqp.com/byvqrtaq'
+AMQP_URL = ''
 
 class Cor:
     RESET = '\033[0m'
@@ -21,6 +24,7 @@ def processar_voto(ch, method, properties, body):
     try:
         msg = json.loads(body.decode('utf-8'))
         
+        # Destaque
         tempo_recebido = msg.get("lamport", 0)
         vetor_recebido = msg.get("vetor", {})
         lamport.atualizar(tempo_recebido)
@@ -38,11 +42,11 @@ def processar_voto(ch, method, properties, body):
         
         time.sleep(1)
 
+        # Destaque consistência
         ch.basic_ack(delivery_tag=method.delivery_tag)
         
     except Exception as e:
         print(f"{Cor.VERMELHO}Erro ao processar: {e}{Cor.RESET}")
-
         ch.basic_nack(delivery_tag=method.delivery_tag)
 
 def iniciar_consumidor():
@@ -54,6 +58,7 @@ def iniciar_consumidor():
         
         channel.queue_declare(queue='fila_votos', durable=True)
         
+        # Destaque exclusão mútua
         channel.basic_qos(prefetch_count=1)
         
         channel.basic_consume(queue='fila_votos', on_message_callback=processar_voto)
